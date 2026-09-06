@@ -15,3 +15,7 @@ ui/agent_ceh.db-*
 # Большие бинарники QA (скриншоты CDP-прогонов)
 ui/_qa_*.png
 ui/*.png
+
+# Регенерируемые выходы QA-прогонов
+ui/_qa_p3_slides/
+ui/файлы/progon_*
