@@ -1162,17 +1162,19 @@
           <div class="tool live" data-tool="ee">
             <div class="tool-head"><h3>ЭЭ-калькулятор</h3>
               <details class="tool-help"><summary title="Справка">?</summary>
-                <div class="help-body">Официальная модель ФЦК (МР-09-2022, редакция № 2),
-                  контур — концевой серийный поток. Условный год, цены «до», суммы без НДС.
+                <div class="help-body">Официальная модель ФЦК «Приложение 1, v5.23»
+                  (МР-13-2025, редакция № 4), контур — концевой серийный поток.
+                  Условный год, цены «до», суммы без НДС.
                   Пустое поле = «нет данных»: считается то, что введено, недостающее попадает
                   в «домерить». Ключевую ставку ЦБ берите с сайта cbr.ru на дату расчёта.
-                  Отчёт пересчитывается сам через полсекунды после любого изменения.
+                  Итог пересчитывается сам через долю секунды после любого изменения.
                   Сохраняйте прогон с меткой «до» (плановый расчёт) и «после» (фактический) —
                   протокол закрытия подтянет цифру из свежего прогона.<div class="help-more"><a href="#" data-go="ch55">Подробнее в методичке →</a></div></div>
               </details></div>
-            <p class="tool-desc">Реальный и потенциальный ЭЭ, высвобождение средств и влияние на налоги — по модели МР-09-2022.</p>
+            <p class="tool-desc">Реальный и потенциальный ЭЭ, высвобождение средств и налоги за 3 года — по модели ФЦК v5.23 (МР-13-2025, ред. 4).</p>
+            <p class="sim-lead">Что вы получите: годовой эффект проекта тремя числами, раскладку по факторам (объёмы, нормы, цена, постоянные, запасы, брак) и справку ФЦК. Меняете любое поле — итог пересчитывается сам, кнопки «Рассчитать» нет.</p>
 
-            <div class="meta-grid">
+            <div class="meta-grid" data-ee-sec="Контекст проекта">
               <label class="field"><span>Предприятие *</span>
                 <input type="text" id="ee-предприятие" placeholder="например, ООО «НОВОХРОМ»"></label>
               <label class="field"><span>Поток *</span>
@@ -1188,10 +1190,21 @@
             <div class="row-actions">
               <button type="button" class="btn secondary small" id="ee-demo-новохром">Демо: НОВОХРОМ</button>
               <button type="button" class="btn secondary small" id="ee-demo-оренбив">Демо: Оренбив</button>
+              <button type="button" class="btn secondary small" id="ee-demo-пример"
+                title="Эталонный «Пример расчета» модели v5.23 (ред. 4) — все секции заполнены">Демо: пример ред. 4</button>
+            </div>
+
+            <!-- Прогресс заполнения входов (Э1-Б: «хочется заполнять») -->
+            <div class="ee-progress" id="ee-progress">
+              <div class="ee-progress-head">
+                <span id="ee-progress-text">Входы: 0/8 секций · 0 % полей</span>
+                <span class="hint" id="ee-progress-hint">начните с секции «Объём и цены» — она обязательна</span>
+              </div>
+              <div class="ee-progress-line"><div class="ee-progress-fill" id="ee-progress-fill"></div></div>
             </div>
 
             <h4 class="ee-sec">Объём и цены</h4>
-            <div class="meta-grid">
+            <div class="meta-grid" data-ee-sec="Объём и цены">
               <label class="field"><span>Тцикл узкого места до, мин * <span class="f-tip" data-tip="Тц — время цикла: сколько минут занимает обработка одной единицы на узком месте. Берётся из диагностики (узкое место).">?</span></span>
                 <input type="text" inputmode="decimal" id="ee-тц-до" class="num"></label>
               <label class="field"><span>Тцикл после, мин *</span>
@@ -1200,19 +1213,33 @@
                 <input type="text" inputmode="decimal" id="ee-тт-до" class="num"></label>
               <label class="field"><span>Тнеобх.такт после, мин *</span>
                 <input type="text" inputmode="decimal" id="ee-тт-после" class="num"></label>
-              <label class="field"><span>Время производства годной до, мин/год *</span>
+              <label class="field"><span>Время производства годной до, мин/год * <span class="f-tip" data-tip="Годовой фонд времени в минутах. Если готовой цифры нет — заполните тройку «смены × часы × дни» ниже, фонд посчитается сам.">?</span></span>
                 <input type="text" inputmode="decimal" id="ee-время-до" class="num"></label>
               <label class="field"><span>Время после, мин/год *</span>
                 <input type="text" inputmode="decimal" id="ee-время-после" class="num"></label>
+              <label class="field"><span>Фонд времени: смен × часов × дней <span class="f-tip" data-tip="Альтернатива полям «время, мин/год» (ред. 4): например 3 смены × 8 часов × 247 дней = 355 680 мин/год. Если заполнены и минуты, и тройка — считаются минуты.">?</span></span>
+                <span class="field-row">
+                  <input type="text" inputmode="decimal" id="ee-фв-смены" class="num" placeholder="смены">
+                  <input type="text" inputmode="decimal" id="ee-фв-часы" class="num" placeholder="часы">
+                  <input type="text" inputmode="decimal" id="ee-фв-дни" class="num" placeholder="дни">
+                </span></label>
               <label class="field"><span>Цена ед. (без НДС), руб *</span>
                 <input type="text" inputmode="decimal" id="ee-цена" class="num"></label>
-              <label class="field"><span>Переменная с/с ед. (без НДС), руб *</span>
+              <label class="field"><span>Переменная с/с ед. (без НДС), руб * <span class="f-tip" data-tip="Переменная себестоимость единицы «до»: сырьё, сдельная оплата, энергия на единицу — без постоянных расходов и без НДС.">?</span></span>
                 <input type="text" inputmode="decimal" id="ee-сс" class="num"></label>
-              <label class="field"><span>Объём реализации (факт первичного сбора), ед/год</span>
+              <label class="field"><span>Объём реализации (факт первичного сбора), ед/год <span class="f-tip" data-tip="Фактический объём продаж за год из первичного сбора. Сверяется с расчётным объёмом: расхождение больше 10 % выводится предупреждением.">?</span></span>
                 <input type="text" inputmode="decimal" id="ee-факт" class="num"></label>
+              <label class="field ee-chk"><span>Цена/сортность изменилась проектом (ред. 4)
+                <input type="checkbox" id="ee-цена-изм"> <span class="f-tip" data-tip="Ред. 4 допускает изменение цены или сортности готовой продукции. Если флажок снят — цена «после» считается равной цене «до», ценового фактора нет.">?</span></span>
+                <input type="text" inputmode="decimal" id="ee-цена-после" class="num" placeholder="цена ед. после, руб" disabled></label>
+              <label class="field ee-chk"><span>Спрос превышает возможности производства
+                <input type="checkbox" id="ee-спрос"> <span class="f-tip" data-tip="Отметьте, если рынок забирает всё, что поток способен выпустить. Связка проверяется против Тцикл/Ттакт «до»; при противоречии выводится предупреждение.">?</span></span></label>
+              <label class="field"><span>Вес основного продукта <span class="f-tip" data-tip="Доля основного продукта во фонде времени (ред. 4, множитель D81). Один продукт на потоке = 1. Пусто = 1.">?</span></span>
+                <input type="text" inputmode="decimal" id="ee-вес" class="num" placeholder="1"></label>
             </div>
 
-            <details class="ee-spoiler"><summary>Дельты норм (только изменённые) <span class="ee-count"></span></summary>
+            <details class="ee-spoiler" data-ee-sec="Дельты норм"><summary>Дельты норм (только изменённые) <span class="ee-count"></span></summary>
+            <p class="ee-empty">Пусто — удельные нормы не менялись, фактор «нормы» в расчёте нулевой.</p>
             <div class="meta-grid">
               <label class="field"><span>Сырьё: норма до</span>
                 <input type="text" inputmode="decimal" id="ee-сырье-н-до" class="num"></label>
@@ -1234,7 +1261,8 @@
                 <input type="text" inputmode="decimal" id="ee-ээ-т" class="num"></label>
             </div></details>
 
-            <details class="ee-spoiler"><summary>Дельты постоянных расходов <span class="ee-count"></span></summary>
+            <details class="ee-spoiler" data-ee-sec="Дельты постоянных"><summary>Дельты постоянных расходов <span class="ee-count"></span></summary>
+            <p class="ee-empty">Пусто — постоянные расходы не менялись (окладный ФОТ, ремонт, сверхурочные).</p>
             <div class="meta-grid">
               <label class="field"><span>Персонал на окладе до, чел</span>
                 <input type="text" inputmode="decimal" id="ee-оклад-до" class="num"></label>
@@ -1242,13 +1270,41 @@
                 <input type="text" inputmode="decimal" id="ee-оклад-после" class="num"></label>
               <label class="field"><span>Среднемес. ЗП, руб</span>
                 <input type="text" inputmode="decimal" id="ee-зп" class="num"></label>
+              <label class="field"><span>Сверхурочные по ставке 1,5, ч/год <span class="f-tip" data-tip="Ред. 4: сверхурочные пересчитываются в FTE (часы ÷ фонд рабочего времени × ставка). Нужны численность на окладе и фонд времени (смены × часы × дни).">?</span></span>
+                <input type="text" inputmode="decimal" id="ee-св-15" class="num"></label>
+              <label class="field"><span>Сверхурочные по ставке 2,0, ч/год</span>
+                <input type="text" inputmode="decimal" id="ee-св-20" class="num"></label>
               <label class="field"><span>Ремонт до, руб/год</span>
                 <input type="text" inputmode="decimal" id="ee-ремонт-до" class="num"></label>
               <label class="field"><span>Ремонт после, руб/год</span>
                 <input type="text" inputmode="decimal" id="ee-ремонт-после" class="num"></label>
             </div></details>
 
-            <details class="ee-spoiler"><summary>Брак, аренда, прочее <span class="ee-count"></span></summary>
+            <details class="ee-spoiler" data-ee-sec="Коммуналка постоянная"><summary>Коммуналка постоянная (не на единицу) <span class="ee-count"></span></summary>
+            <p class="ee-empty">Пусто — постоянные энергоресурсы (освещение, отопление) не менялись.</p>
+            <div class="meta-grid">
+              <label class="field"><span>Вид ресурса 1 <span class="f-tip" data-tip="Постоянная часть коммуналки — та, что не зависит от объёма выпуска (ред. 4: учитывается отдельно от норм на единицу).">?</span></span>
+                <input type="text" id="ee-комм1-вид" placeholder="например, электроэнергия"></label>
+              <label class="field"><span>Объём до / после</span>
+                <span class="field-row">
+                  <input type="text" inputmode="decimal" id="ee-комм1-до" class="num" placeholder="до">
+                  <input type="text" inputmode="decimal" id="ee-комм1-после" class="num" placeholder="после">
+                </span></label>
+              <label class="field"><span>Тариф 1, руб/ед</span>
+                <input type="text" inputmode="decimal" id="ee-комм1-тариф" class="num"></label>
+              <label class="field"><span>Вид ресурса 2</span>
+                <input type="text" id="ee-комм2-вид" placeholder="например, тепло"></label>
+              <label class="field"><span>Объём до / после</span>
+                <span class="field-row">
+                  <input type="text" inputmode="decimal" id="ee-комм2-до" class="num" placeholder="до">
+                  <input type="text" inputmode="decimal" id="ee-комм2-после" class="num" placeholder="после">
+                </span></label>
+              <label class="field"><span>Тариф 2, руб/ед</span>
+                <input type="text" inputmode="decimal" id="ee-комм2-тариф" class="num"></label>
+            </div></details>
+
+            <details class="ee-spoiler" data-ee-sec="Брак, аренда, прочее"><summary>Брак, аренда, прочее <span class="ee-count"></span></summary>
+            <p class="ee-empty">Пусто — брак не менялся, площади не высвобождаются, прочих эффектов нет.</p>
             <div class="meta-grid">
               <label class="field"><span>Неисправимый брак до, %</span>
                 <input type="text" inputmode="decimal" id="ee-брак-до" class="num"></label>
@@ -1256,7 +1312,7 @@
                 <input type="text" inputmode="decimal" id="ee-брак-после" class="num"></label>
               <label class="field"><span>Высвобожденная площадь, м²</span>
                 <input type="text" inputmode="decimal" id="ee-площадь" class="num"></label>
-              <label class="field"><span>Аренда: ставка реальная, руб/м²·год</span>
+              <label class="field"><span>Аренда: ставка реальная, руб/м²·год <span class="f-tip" data-tip="Реальная ставка — площадь уже сдаётся или точно будет сдана. Потенциальная — вариант на будущее, идёт в потенциальный ЭЭ.">?</span></span>
                 <input type="text" inputmode="decimal" id="ee-ар-реал" class="num"></label>
               <label class="field"><span>Аренда: ставка потенциальная, руб/м²·год</span>
                 <input type="text" inputmode="decimal" id="ee-ар-пот" class="num"></label>
@@ -1265,7 +1321,8 @@
                 <input type="text" inputmode="decimal" id="ee-прочий" class="num"></label>
             </div></details>
 
-            <details class="ee-spoiler"><summary>Запасы, руб (рабочий капитал) <span class="ee-count"></span></summary>
+            <details class="ee-spoiler" data-ee-sec="Запасы"><summary>Запасы, руб (рабочий капитал) <span class="ee-count"></span></summary>
+            <p class="ee-empty">Пусто — высвобождение денег из запасов и отложенный эффект по ставке ЦБ не считаются.</p>
             <div class="meta-grid">
               <label class="field"><span>Сырьё и материалы до</span>
                 <input type="text" inputmode="decimal" id="ee-сим-до" class="num"></label>
@@ -1281,7 +1338,8 @@
                 <input type="text" inputmode="decimal" id="ee-нзп-после" class="num"></label>
             </div></details>
 
-            <details class="ee-spoiler"><summary>Константы <span class="ee-count"></span></summary>
+            <details class="ee-spoiler" data-ee-sec="Константы"><summary>Константы <span class="ee-count"></span></summary>
+            <p class="ee-empty">Пусто — действуют дефолты модели: НДС 20 %, соцотчисления ×1,3, налог на прибыль 25 %.</p>
             <div class="meta-grid">
               <label class="field"><span>Ключевая ставка ЦБ, % <span class="f-tip" data-tip="Берётся с сайта cbr.ru на дату расчёта — нужна для оценки высвобождения средств из запасов.">?</span></span>
                 <input type="text" inputmode="decimal" id="ee-кс" class="num"></label>
@@ -1289,7 +1347,7 @@
                 <input type="text" inputmode="decimal" id="ee-ндс" class="num"></label>
               <label class="field"><span>Соцотчисления, × (дефолт 1,3)</span>
                 <input type="text" inputmode="decimal" id="ee-соц" class="num"></label>
-              <label class="field"><span>Налог на прибыль, % (дефолт 20)</span>
+              <label class="field"><span>Налог на прибыль, % (дефолт 25, ред. 4) <span class="f-tip" data-tip="В модели v5.23 зашито 25 % (чек-лист G194) — в ред. 2 было 20 %. Пусто = дефолт 25.">?</span></span>
                 <input type="text" inputmode="decimal" id="ee-нприб" class="num"></label>
             </div></details>
             <p class="hint legend">* — обязательно для расчёта</p>
@@ -1311,14 +1369,45 @@
           <!-- Результат живого пересчёта ЭЭ (владелец — «ЭЭ-калькулятор»; видимость синхронизируется в showTool, фикс Д3.2-Б3) -->
           <div class="result-zone" id="ee-result-zone" data-owner="ee" hidden>
             <div class="stale-banner" id="ee-result-stale" hidden>Отчёт устарел — исправьте подсвеченные данные, отчёт пересчитается автоматически.</div>
+
+            <!-- Слой 1: итог тремя числами (Э1-Б, DESIGN_V2) -->
+            <div class="ee-hero" id="ee-hero" hidden>
+              <div class="ee-hero-grid">
+                <div class="ee-hero-main">
+                  <div class="ee-hero-cap">Реальный ЭЭ, руб/год</div>
+                  <div class="ee-hero-num" id="ee-hero-реальный">—</div>
+                  <div class="ee-hero-delta" id="ee-hero-delta" hidden></div>
+                </div>
+                <div class="ee-hero-item">
+                  <div class="ee-hero-cap">Потенциальный ЭЭ, руб/год</div>
+                  <div class="ee-hero-num2" id="ee-hero-потенциальный">—</div>
+                </div>
+                <div class="ee-hero-item">
+                  <div class="ee-hero-cap">Налоги за 3 года, руб</div>
+                  <div class="ee-hero-num2" id="ee-hero-налоги">—</div>
+                </div>
+              </div>
+              <div class="ee-hero-sub" id="ee-hero-высвоб"></div>
+            </div>
             <div class="glavnoe" id="ee-glavnoe" hidden></div>
+
+            <!-- Слой 2: водопад факторной декомпозиции (J-факторы ядра v5.23) -->
+            <div class="ee-waterfall" id="ee-waterfall" hidden>
+              <h4 class="ee-sec">Из чего складывается реальный ЭЭ</h4>
+              <div id="ee-wf-chart"></div>
+              <p class="ee-wf-check" id="ee-wf-check"></p>
+            </div>
+
             <div class="result">
               <div class="result-head">
                 <h2>Отчёт</h2>
                 <button type="button" class="btn secondary" id="ee-btn-fck">Скачать справку ФЦК</button>
                 <button type="button" class="btn secondary" id="ee-btn-download">Скачать .md</button>
               </div>
-              <article class="report" id="ee-report"></article>
+              <details class="ee-report-details" id="ee-report-details">
+                <summary>Показанные расчёты, входные данные и перечень «домерить»</summary>
+                <article class="report" id="ee-report"></article>
+              </details>
               <div class="save-run">
                 <input type="text" id="save-ee-коммент" placeholder="комментарий к прогону">
                 <select id="save-ee-метка">
@@ -1931,7 +2020,7 @@
 <p>3.2.2. Щелчок по пункту меню открывает соответствующий этап; на экране одновременно отображается один этап. У пунктов меню отображаются бейджи с числом сохранённых прогонов по инструментам этапа (при выбранном проекте).</p>
 <p>3.2.3. Пункт <strong>«Помощь»</strong> открывает встроенную методичку пользователя (настоящий документ в сокращённом виде) со ссылками на разделы по каждому инструменту.</p>
 <h3>3.3. Общие правила работы карточек инструментов</h3>
-<p>3.3.1. <strong>Автоматический пересчёт.</strong> В инструментах «Поиск узкого места», «Цели SMART», «ЭЭ-калькулятор» отчёт пересчитывается автоматически через полсекунды после изменения любого поля. Отдельная кнопка «Рассчитать» отсутствует.</p>
+<p>3.3.1. <strong>Автоматический пересчёт.</strong> В инструментах «Поиск узкого места», «Цели SMART», «ЭЭ-калькулятор» отчёт пересчитывается автоматически через долю секунды после изменения любого поля. Отдельная кнопка «Рассчитать» отсутствует.</p>
 <p>3.3.2. <strong>Пустое поле — отсутствие данных, а не ошибка.</strong> Инструмент рассчитывает показатели, для которых достаточно введённых данных; недостающие данные перечисляются в блоке «домерить». Подстановка нулевых значений не выполняется.</p>
 <p>3.3.3. <strong>Валидация ввода.</strong> Ячейка с нечисловым значением подсвечивается красным («не число») и блокирует пересчёт с перечнем проблем (например: «строка 3, колонка "Тц, мин": "двадцать" — не число»). Незаполненная обязательная ячейка подсвечивается янтарным («не заполнено»). Допускаются десятичная запятая и пробелы-разделители разрядов.</p>
 <p>3.3.4. <strong>Плашка «отчёт устарел».</strong> Если после получения отчёта введённые данные изменены так, что расчёт стал невозможен (не исправлены подсвеченные ячейки), область отчёта приглушается и отображается плашка «Отчёт устарел — исправьте подсвеченные данные, отчёт пересчитается автоматически».</p>
@@ -3050,7 +3139,9 @@
 </script>
 
 <script>
-/* ЭЭ-калькулятор (спека № 2): живой пересчёт через /api/ee_raschet */
+/* ЭЭ-калькулятор (спека Э1, ред. 4): живой пересчёт через /api/ee_raschet,
+   слои DESIGN_V2 (итог тремя числами → водопад факторов → входы → отчёт
+   под раскрытием), прогресс заполнения, дельта итога. Ломтик Э1-Б. */
 (function () {
   "use strict";
 
@@ -3059,14 +3150,28 @@
   var reportEl = document.getElementById("ee-report");
   var glavnoeEl = document.getElementById("ee-glavnoe");
   var staleEl = document.getElementById("ee-result-stale");
+  var heroEl = document.getElementById("ee-hero");
+  var heroReal = document.getElementById("ee-hero-реальный");
+  var heroPot = document.getElementById("ee-hero-потенциальный");
+  var heroNal = document.getElementById("ee-hero-налоги");
+  var heroVysvob = document.getElementById("ee-hero-высвоб");
+  var heroDelta = document.getElementById("ee-hero-delta");
+  var wfEl = document.getElementById("ee-waterfall");
+  var wfChart = document.getElementById("ee-wf-chart");
+  var wfCheck = document.getElementById("ee-wf-check");
+  var progText = document.getElementById("ee-progress-text");
+  var progFill = document.getElementById("ee-progress-fill");
+  var progHint = document.getElementById("ee-progress-hint");
   var lastReportMd = null, lastFlowName = "предприятие";
+  var prevRaw = null; // итоги прошлого удачного пересчёта — для дельты
 
-  // Обязательные поля ЭЭ: подсветка пустых при попытке расчёта (звёздочки в подписях)
+  // Обязательные поля ЭЭ: подсветка пустых при попытке расчёта (звёздочки в подписях).
+  // «Время, мин/год» обязательно в паре с альтернативой «фонд времени» (смены×часы×дни) —
+  // обрабатывается отдельно в checkRequired/hasEnough.
   var ОБЯЗАТЕЛЬНЫЕ = [
     ["ee-предприятие", "Предприятие"], ["ee-поток", "Поток"],
     ["ee-тц-до", "Тцикл до"], ["ee-тц-после", "Тцикл после"],
     ["ee-тт-до", "Ттакт до"], ["ee-тт-после", "Ттакт после"],
-    ["ee-время-до", "Время до"], ["ee-время-после", "Время после"],
     ["ee-цена", "Цена ед."], ["ee-сс", "Переменная с/с ед."]
   ];
 
@@ -3078,7 +3183,7 @@
     return isFinite(n) ? n : undefined;
   }
 
-  // Карта полей формы → контракт спеки № 2
+  // Карта полей формы → контракт спеки Э1 (ред. 4)
   var ПОЛЯ = [
     ["ee-тц-до", ["тцикл_мин", "до"], "Объём и цены → Тцикл до"],
     ["ee-тц-после", ["тцикл_мин", "после"], "Объём и цены → Тцикл после"],
@@ -3086,9 +3191,13 @@
     ["ee-тт-после", ["ттакт_мин", "после"], "Объём и цены → Ттакт после"],
     ["ee-время-до", ["время_мин_год", "до"], "Объём и цены → Время до"],
     ["ee-время-после", ["время_мин_год", "после"], "Объём и цены → Время после"],
+    ["ee-фв-смены", ["фонд_времени", "смены"], "Объём и цены → Фонд времени, смены"],
+    ["ee-фв-часы", ["фонд_времени", "часы"], "Объём и цены → Фонд времени, часы"],
+    ["ee-фв-дни", ["фонд_времени", "дни"], "Объём и цены → Фонд времени, дни"],
     ["ee-цена", ["цена_ед"], "Объём и цены → Цена ед."],
     ["ee-сс", ["перем_сс_ед"], "Объём и цены → Переменная с/с ед."],
     ["ee-факт", ["объем_реализации_факт"], "Объём и цены → Объём (факт)"],
+    ["ee-вес", ["вес_основного_продукта"], "Объём и цены → Вес основного продукта"],
     ["ee-сырье-н-до", ["нормы", "сырье", "норма_до"], "Дельты норм → Сырьё, норма до"],
     ["ee-сырье-н-после", ["нормы", "сырье", "норма_после"], "Дельты норм → Сырьё, норма после"],
     ["ee-сырье-ц", ["нормы", "сырье", "цена"], "Дельты норм → Сырьё, цена"],
@@ -3101,6 +3210,8 @@
     ["ee-оклад-до", ["постоянные", "персонал_оклад", "чел_до"], "Дельты постоянных → Персонал до"],
     ["ee-оклад-после", ["постоянные", "персонал_оклад", "чел_после"], "Дельты постоянных → Персонал после"],
     ["ee-зп", ["постоянные", "персонал_оклад", "зп_мес"], "Дельты постоянных → Среднемес. ЗП"],
+    ["ee-св-15", ["постоянные", "сверхурочные", "чг_15"], "Дельты постоянных → Сверхурочные 1,5"],
+    ["ee-св-20", ["постоянные", "сверхурочные", "чг_20"], "Дельты постоянных → Сверхурочные 2,0"],
     ["ee-ремонт-до", ["постоянные", "ремонт", "до"], "Дельты постоянных → Ремонт до"],
     ["ee-ремонт-после", ["постоянные", "ремонт", "после"], "Дельты постоянных → Ремонт после"],
     ["ee-площадь", ["прочее", "аренда", "площадь_м2"], "Прочее → Площадь"],
@@ -3122,6 +3233,9 @@
     "ee-ндс": [["константы", "ндс"], "Константы → НДС"],
     "ee-нприб": [["константы", "налог_прибыль"], "Константы → Налог на прибыль"]
   };
+  // Коммуналка постоянная: две строки «вид / объём до / объём после / тариф»
+  var КОММУНАЛКА = [["ee-комм1-вид", "ee-комм1-до", "ee-комм1-после", "ee-комм1-тариф"],
+                   ["ee-комм2-вид", "ee-комм2-до", "ee-комм2-после", "ee-комм2-тариф"]];
 
   function setPath(obj, path, val) {
     for (var i = 0; i < path.length - 1; i++) {
@@ -3156,6 +3270,24 @@
       соц.classList.add("bad");
       проблемы.push("секция «Константы → Соцотчисления»: «" + соц.value.trim() + "» — не число");
     }
+    // Цена «после» проверяется только при установленном флаге «цена изменилась»
+    if (document.getElementById("ee-цена-изм").checked) {
+      var цп = document.getElementById("ee-цена-после");
+      if (parseNum(цп.value) === undefined) {
+        цп.classList.add("bad");
+        проблемы.push("секция «Объём и цены → Цена ед. после»: «" + цп.value.trim() + "» — не число");
+      }
+    }
+    КОММУНАЛКА.forEach(function (ряд, i) {
+      [ряд[1], ряд[2], ряд[3]].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (parseNum(el.value) === undefined) {
+          el.classList.add("bad");
+          проблемы.push("секция «Коммуналка постоянная», ресурс " + (i + 1) +
+                        ": «" + el.value.trim() + "» — не число");
+        }
+      });
+    });
     return проблемы;
   }
 
@@ -3178,6 +3310,31 @@
     if (d["прочее"] && typeof d["прочее"]["прочий_эффект_руб"] === "number") {
       d["прочее"]["прочий_реальный"] = document.getElementById("ee-прочий-реал").checked;
     }
+    // Ред. 4: цена «после» уходит в расчёт только при установленном флаге
+    if (document.getElementById("ee-цена-изм").checked) {
+      var цп = parseNum(document.getElementById("ee-цена-после").value);
+      d["цена_изменилась"] = true;
+      if (typeof цп === "number") d["цена_ед_после"] = цп;
+    }
+    if (document.getElementById("ee-спрос").checked) {
+      d["спрос_превышает_возможности"] = true;
+    }
+    // Коммуналка: строка уходит в расчёт, если заполнен хотя бы один объём
+    var комм = [];
+    КОММУНАЛКА.forEach(function (ряд, i) {
+      var вид = document.getElementById(ряд[0]).value.trim();
+      var од = parseNum(document.getElementById(ряд[1]).value);
+      var оп = parseNum(document.getElementById(ряд[2]).value);
+      var тр = parseNum(document.getElementById(ряд[3]).value);
+      if (typeof од === "number" || typeof оп === "number" || вид !== "") {
+        var б = { "вид": вид || ("ресурс " + (i + 1)) };
+        if (typeof од === "number") б["объем_до"] = од;
+        if (typeof оп === "number") б["объем_после"] = оп;
+        if (typeof тр === "number") б["тариф"] = тр;
+        комм.push(б);
+      }
+    });
+    if (комм.length) setPath(d, ["постоянные", "коммуналка"], комм);
     return d;
   }
 
@@ -3189,16 +3346,20 @@
       }
       return typeof o === "number";
     }
+    // Фонд времени: либо готовые минуты до/после, либо тройка смены×часы×дни (ред. 4)
+    var времяОк = (ok(["время_мин_год", "до"]) && ok(["время_мин_год", "после"])) ||
+      (ok(["фонд_времени", "смены"]) && ok(["фонд_времени", "часы"]) &&
+       ok(["фонд_времени", "дни"]));
     return ok(["тцикл_мин", "до"]) && ok(["тцикл_мин", "после"]) &&
            ok(["ттакт_мин", "до"]) && ok(["ттакт_мин", "после"]) &&
-           ok(["время_мин_год", "до"]) && ok(["время_мин_год", "после"]) &&
-           ok(["цена_ед"]) && ok(["перем_сс_ед"]);
+           времяОк && ok(["цена_ед"]) && ok(["перем_сс_ед"]);
   }
 
   var timer = null, seq = 0;
   function schedule() {
     clearTimeout(timer);
-    timer = setTimeout(recalc, 500);
+    timer = setTimeout(recalc, 250); // Э1-Б: живой пересчёт, debounce ≤ 300 мс
+    refreshProgress();
   }
 
   function setStatus(text, kind) {
@@ -3227,6 +3388,20 @@
         if (подсветить && touched) el.classList.add("miss");
       }
     });
+    // «Время, мин/год» обязательно, если не заполнена тройка фонда времени (ред. 4)
+    var фондОк = ["ee-фв-смены", "ee-фв-часы", "ee-фв-дни"].every(function (id) {
+      return typeof parseNum(document.getElementById(id).value) === "number";
+    });
+    if (!фондОк) {
+      [["ee-время-до", "Время до (или фонд времени)"],
+       ["ee-время-после", "Время после (или фонд времени)"]].forEach(function (п) {
+        var el = document.getElementById(п[0]);
+        if (el.value.trim() === "") {
+          пустые.push(п);
+          if (подсветить && touched) el.classList.add("miss");
+        }
+      });
+    }
     return { пустые: пустые, touched: touched };
   }
 
@@ -3248,6 +3423,112 @@
     staleEl.hidden = true;
   }
 
+  // --- Прогресс заполнения секций (Э1-Б: «хочется заполнять») ---
+  function refreshProgress() {
+    var секции = document.querySelectorAll(".tool[data-tool='ee'] [data-ee-sec]");
+    var заполнено = 0, полейВсего = 0, полейЗап = 0;
+    секции.forEach(function (s) {
+      var n = 0;
+      s.querySelectorAll("input[type='text'], input.num").forEach(function (inp) {
+        полейВсего++;
+        if (inp.value.trim() !== "") { полейЗап++; n++; }
+      });
+      if (n > 0) заполнено++;
+      if (s.classList.contains("ee-spoiler")) s.classList.toggle("ee-filled", n > 0);
+    });
+    var pct = полейВсего ? Math.round(полейЗап / полейВсего * 100) : 0;
+    progText.textContent = "Входы: " + заполнено + "/" + секции.length +
+                           " секций · " + pct + " % полей";
+    progFill.style.width = pct + "%";
+    if (заполнено === 0) {
+      progHint.textContent = "начните с секции «Объём и цены» — она обязательна";
+    } else if (!hasEnough(collectEE())) {
+      progHint.textContent = "заполните обязательные поля «Объём и цены» — появится итог";
+    } else if (заполнено < секции.length) {
+      progHint.textContent = "каждая необязательная секция добавляет фактор в расчёт";
+    } else {
+      progHint.textContent = "все секции заполнены — расчёт полный";
+    }
+  }
+
+  function fmtRu(x) {
+    return Math.abs(x).toLocaleString("ru-RU", { maximumFractionDigits: 0 });
+  }
+
+  // --- Слой 1: итог тремя числами + дельта к предыдущему пересчёту ---
+  function renderHero(res) {
+    var эе = res["эе"], raw = res["эе_raw"];
+    if (!эе || !raw) { heroEl.hidden = true; return; }
+    heroReal.textContent = эе["реальный"];
+    heroPot.textContent = эе["потенциальный"];
+    heroNal.textContent = эе["налоги"];
+    var sub = "Высвобождение ДС: <strong>" + escapeHtml(эе["высвобождение"]) +
+              " руб</strong> (разовое)";
+    var отл = parseFloat(String(raw["отложенный_запасы"]));
+    if (Math.abs(отл) > 0.005) {
+      sub += " · отложенный эффект запасов последующих лет: <strong>" +
+             escapeHtml(эе["отложенный_запасы"]) + " руб/год</strong> " +
+             "(уже учтён в реальном ЭЭ как доход по ключевой ставке ЦБ)";
+    }
+    heroVysvob.innerHTML = sub;
+    // Дельта итога к прошлому пересчёту — мгновенная обратная связь на ввод
+    if (prevRaw && Math.abs(raw["реальный"] - prevRaw["реальный"]) > 0.005) {
+      var diff = raw["реальный"] - prevRaw["реальный"];
+      heroDelta.textContent = (diff > 0 ? "+" : "−") + fmtRu(diff) +
+                              " ₽ к предыдущему пересчёту";
+      heroDelta.className = "ee-hero-delta " + (diff > 0 ? "up" : "down");
+      heroDelta.hidden = false;
+    } else {
+      heroDelta.hidden = true;
+    }
+    prevRaw = raw;
+    heroEl.hidden = false;
+  }
+
+  // --- Слой 2: водопад факторной декомпозиции (J-факторы ядра v5.23) ---
+  function renderWaterfall(res) {
+    var ф = res["факторы"], raw = res["эе_raw"];
+    if (!ф || !ф.length || !raw) { wfEl.hidden = true; return; }
+    var rows = [], run = 0;
+    ф.forEach(function (f) {
+      rows.push({ имя: f["имя"], от: run, до: run + f["зн"], зн: f["зн"] });
+      run += f["зн"];
+    });
+    var итог = raw["реальный"];
+    rows.push({ имя: "Реальный ЭЭ (итог)", от: 0, до: итог, зн: итог, итог: true });
+    var min = 0, max = 0;
+    rows.forEach(function (r) {
+      min = Math.min(min, r.от, r.до);
+      max = Math.max(max, r.от, r.до);
+    });
+    if (max - min < 1e-9) max = min + 1;
+    function pc(v) { return (v - min) / (max - min) * 100; }
+    var html = "";
+    rows.forEach(function (r) {
+      var лево = pc(Math.min(r.от, r.до));
+      var шир = Math.abs(pc(r.до) - pc(r.от));
+      if (шир < 0.6) шир = 0.6; // видимость мелких факторов
+      var cls = r.итог ? "итог" : (r.зн >= 0 ? "pos" : "neg");
+      html += '<div class="ee-wf-row">' +
+        '<div class="ee-wf-name" title="' + escapeHtml(r.имя) + '">' + escapeHtml(r.имя) + '</div>' +
+        '<div class="ee-wf-track">' +
+        '<div class="ee-wf-bar ' + cls + '" style="left:' + лево.toFixed(2) +
+        '%;width:' + шир.toFixed(2) + '%"></div>' +
+        '</div>' +
+        '<div class="ee-wf-val">' + (r.зн < 0 ? "−" : "") + fmtRu(r.зн) + '</div></div>';
+    });
+    wfChart.innerHTML = html;
+    var св = res["сверка"];
+    if (св) {
+      wfCheck.textContent = "Σ факторов = " + fmtRu(св["сумма"]) + " руб · сверка " +
+        "с реальным ЭЭ: " + (св["сходится"] ? "сходится" : "НЕ СХОДИТСЯ — проверьте вход");
+      wfCheck.className = "ee-wf-check " + (св["сходится"] ? "ok" : "err");
+    } else {
+      wfCheck.textContent = "";
+    }
+    wfEl.hidden = false;
+  }
+
   function recalc() {
     var мусор = checkGarbage();
     if (мусор.length) {
@@ -3256,6 +3537,7 @@
                 мусор.join("\n"), "err");
       return;
     }
+    refreshProgress();
     var d = collectEE();
     if (!hasEnough(d)) {
       var chk = checkRequired(true);
@@ -3294,14 +3576,10 @@
         lastFlowName = res.flow_name;
         reportEl.innerHTML = res.result_html;
         if (window.acTermHighlight) window.acTermHighlight(reportEl);
+        renderHero(res);
+        renderWaterfall(res);
         if (res["эе"]) {
-          var gh = "Реальный ЭЭ: <strong>" + escapeHtml(res["эе"]["реальный"]) +
-            " руб/год</strong>" +
-            '<div class="masshtab">Потенциальный ЭЭ: <strong>' +
-            escapeHtml(res["эе"]["потенциальный"]) + " руб/год</strong> · " +
-            "высвобождение ДС: <strong>" + escapeHtml(res["эе"]["высвобождение"]) +
-            " руб</strong> · налоги за 3 года: <strong>" +
-            escapeHtml(res["эе"]["налоги"]) + " руб</strong></div>";
+          var gh = "";
           if (res["предупр"] && res["предупр"].length) {
             gh += '<div class="domerit">Предупреждения:<ol>' +
               res["предупр"].map(function (x) { return "<li>" + escapeHtml(x) + "</li>"; }).join("") +
@@ -3314,7 +3592,7 @@
           }
           glavnoeEl.innerHTML = gh;
           if (window.acTermHighlight) window.acTermHighlight(glavnoeEl);
-          glavnoeEl.hidden = false;
+          glavnoeEl.hidden = gh === "";
         } else {
           glavnoeEl.hidden = true;
         }
@@ -3344,10 +3622,29 @@
     });
     var соц = d["константы"] && d["константы"]["соцотчисления"];
     document.getElementById("ee-соц").value = (typeof соц === "number") ? соц : "";
+    // Ред. 4: цена после / спрос / коммуналка
+    var изм = d["цена_изменилась"] === true;
+    document.getElementById("ee-цена-изм").checked = изм;
+    document.getElementById("ee-цена-после").disabled = !изм;
+    document.getElementById("ee-цена-после").value =
+      (typeof d["цена_ед_после"] === "number") ? d["цена_ед_после"] : "";
+    document.getElementById("ee-спрос").checked = d["спрос_превышает_возможности"] === true;
+    var комм = (d["постоянные"] && d["постоянные"]["коммуналка"]) || [];
+    КОММУНАЛКА.forEach(function (ряд, i) {
+      var б = комм[i] || {};
+      document.getElementById(ряд[0]).value = б["вид"] || "";
+      document.getElementById(ряд[1]).value = (typeof б["объем_до"] === "number") ? б["объем_до"] : "";
+      document.getElementById(ряд[2]).value = (typeof б["объем_после"] === "number") ? б["объем_после"] : "";
+      document.getElementById(ряд[3]).value = (typeof б["тариф"] === "number") ? б["тариф"] : "";
+    });
     schedule();
+    // Бейджи «заполнено: N» на спойлерах считаются по событию input на карточке —
+    // при программной загрузке его нет, посылаем вручную (обновит и прогресс)
+    document.getElementById("ee-предприятие")
+      .dispatchEvent(new Event("input", { bubbles: true }));
   }
 
-  ["новохром", "оренбив"].forEach(function (кейс) {
+  ["новохром", "оренбив", "пример"].forEach(function (кейс) {
     document.getElementById("ee-demo-" + кейс).addEventListener("click", function () {
       setStatus("Загружаю демо-набор…", "muted");
       fetch("/api/ee_demo/" + кейс).then(function (r) { return r.json(); })
@@ -3411,6 +3708,12 @@
   document.querySelectorAll("input[id^='ee-']").forEach(function (el) {
     el.addEventListener("input", schedule);
   });
+  // Флаг «цена изменилась» (ред. 4) включает поле цены «после»
+  document.getElementById("ee-цена-изм").addEventListener("change", function () {
+    document.getElementById("ee-цена-после").disabled = !this.checked;
+    if (this.checked) document.getElementById("ee-цена-после").focus();
+  });
+  refreshProgress();
   setStatus("Заполните обязательные поля секции «Объём и цены» или нажмите демо-кнопку.", "muted");
   // Мост для слоя данных (Прогон 4)
   window.__acEE = { collect: collectEE, load: loadEE };

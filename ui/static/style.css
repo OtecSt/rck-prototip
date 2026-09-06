@@ -1823,3 +1823,229 @@ table.ops th.col-name { white-space: nowrap; }
 .pr-thanks { font-size: 18px; font-weight: 700; margin-top: 16px; color: #E8A07E; }
 .pr-log { color: var(--ink-soft); font-size: 13px; margin-top: 8px; }
 .pr-log ul { margin: 4px 0; padding-left: 18px; }
+
+/* ============================================================
+   Э1-Б · Экран ЭЭ-калькулятора по DESIGN_V2 (ред. 4, v5.23):
+   слои (итог тремя числами → водопад факторов → входы → отчёт
+   под раскрытием), прогресс заполнения, дельта итога.
+   ============================================================ */
+
+/* --- Прогресс заполнения входов --- */
+.ee-progress {
+  margin: 14px 0 6px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-ctl);
+}
+.ee-progress-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+#ee-progress-text {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.ee-progress-head .hint { font-size: 12.5px; }
+.ee-progress-line {
+  margin-top: 7px;
+  height: 4px;
+  border-radius: 999px;
+  background: #EFE8DC;
+  overflow: hidden;
+}
+.ee-progress-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.18s ease;
+}
+
+/* --- Подсказки пустого состояния секций --- */
+.ee-empty {
+  margin: 0;
+  padding: 0 14px 10px;
+  font-size: 12.5px;
+  color: var(--ink-mute);
+}
+.ee-spoiler.ee-filled .ee-empty { display: none; }
+.ee-spoiler { transition: border-color 0.18s ease, background 0.18s ease; }
+.ee-spoiler.ee-filled { border-color: #D8E2D4; background: var(--surface); }
+
+/* Мульти-поле в одной строке (фонд времени, коммуналка) — сильнее общего
+   правила .meta-grid .field > span */
+.meta-grid .field > span.field-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 0;
+}
+.meta-grid .field > span.field-row input { flex: 1; min-width: 0; }
+
+/* --- Флажки в форме ЭЭ --- */
+.field.ee-chk > span { font-weight: 500; }
+.field.ee-chk input[type="checkbox"] { margin-right: 4px; accent-color: var(--accent); }
+.field input:disabled { background: #F3EEE5; color: var(--ink-mute); cursor: not-allowed; }
+
+/* --- Слой 1: итог тремя числами --- */
+.ee-hero {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
+  padding: var(--card-pad-y) var(--card-pad-x);
+  margin-bottom: 14px;
+}
+.ee-hero-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 20px;
+  align-items: end;
+}
+.ee-hero-cap {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+}
+.ee-hero-num {
+  font-size: 34px;
+  font-weight: 650;
+  line-height: 1.1;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.ee-hero-num::after {
+  content: " ₽";
+  font-size: 18px;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+.ee-hero-num2 {
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.ee-hero-num2::after {
+  content: " ₽";
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+.ee-hero-delta {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  border-radius: 999px;
+  padding: 1px 10px;
+  transition: opacity 0.18s ease;
+}
+.ee-hero-delta.up { background: #E4EFE2; color: #35633A; }
+.ee-hero-delta.down { background: var(--err-bg); color: var(--err-ink); }
+.ee-hero-sub {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.ee-hero-sub strong { color: var(--ink); font-weight: 600; }
+
+/* --- Слой 2: водопад факторной декомпозиции --- */
+.ee-waterfall {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
+  padding: var(--card-pad-y) var(--card-pad-x);
+  margin-bottom: 14px;
+}
+.ee-waterfall .ee-sec { margin-top: 0; }
+.ee-wf-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 3px 0;
+}
+.ee-wf-name {
+  flex: 0 0 230px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ee-wf-track {
+  position: relative;
+  flex: 1;
+  height: 18px;
+  background: #FAF7F1;
+  border-radius: 6px;
+}
+.ee-wf-bar {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  border-radius: 4px;
+  transition: left 0.18s ease, width 0.18s ease;
+}
+.ee-wf-bar.pos { background: var(--ok); }
+.ee-wf-bar.neg { background: var(--err-ink); opacity: 0.85; }
+.ee-wf-bar.итог { background: var(--accent); top: 1px; bottom: 1px; }
+.ee-wf-val {
+  flex: 0 0 100px;
+  text-align: right;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.ee-wf-check {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.ee-wf-check.ok { color: var(--ok); }
+.ee-wf-check.err { color: var(--err-ink); font-weight: 600; }
+
+/* --- Слой 4: отчёт под раскрытием --- */
+.ee-report-details {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-ctl);
+  background: #FDFCFA;
+  margin-top: 4px;
+}
+.ee-report-details > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.ee-report-details > summary::-webkit-details-marker { display: none; }
+.ee-report-details > summary::after {
+  content: "▾";
+  float: right;
+  font-size: 12px;
+  transition: transform 0.18s ease;
+}
+.ee-report-details:not([open]) > summary::after { transform: rotate(-90deg); }
+.ee-report-details > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: var(--radius-ctl);
+}
+.ee-report-details .report { padding: 4px 14px 14px; }
+
+/* Устаревший отчёт: слои ЭЭ приглушаются вместе с отчётом */
+.result-zone.stale .ee-hero,
+.result-zone.stale .ee-waterfall { opacity: 0.45; }
