@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 COPY узкие_места.py ээ_калькулятор.py protokol_zakrytiya.py ord_smart.py vsm_karta.py ээ_экспорт_фцк.py otbor.py otbor_potok.py dokumenty_fck.py meropriyatiya.py biblioteka_instrumentov.py pokazateli_potoka.py ekstraktor_pa.py cifrovoy_zamer.py oee_kalkulator.py vr_export.py llm_sloy.py /app/
 # Эталонный шаблон «Вскрытие резервов» V4.7.2 (актив vr_export.py)
 COPY assets/vr_shablon_v472.xlsx /app/assets/vr_shablon_v472.xlsx
-COPY данные_окз_слепой.json данные_ээ_новохром.json данные_ээ_оренбив.json /app/
+COPY данные_окз_слепой.json данные_ээ_новохром.json данные_ээ_оренбив.json данные_ээ_пример_v523.json /app/
 # Шаблон справки ФЦК 1.4 (фикс Д3.1-Б2: без него «Скачать справку ФЦК» → 500)
 COPY разведка_ээ/*.xlsm /app/разведка_ээ/
 
