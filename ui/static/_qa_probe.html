@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head><meta charset="utf-8"><title>QA probe ui22</title>
+<style>body{font:16px/1.4 monospace;background:#fff;margin:0}#out{padding:8px;white-space:pre-wrap;font-size:18px}iframe{width:100%;height:1500px;border:2px solid #a4572f}</style></head>
+<body>
+<div id="out">QA: загрузка…</div>
+<iframe id="fr" src="/"></iframe>
+<script>
+var out = [];
+function log(s){ out.push(s); document.getElementById('out').textContent = out.join('\n'); }
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+var fr = document.getElementById('fr');
+fr.onload = async function(){
+  try {
+    var w = fr.contentWindow, d = fr.contentDocument;
+    w.confirm = function(){ return true; };
+    await sleep(2500);
+    // 1. Демо ОКЗ
+    var btn = d.getElementById('btn-demo');
+    log('btn-demo найден: ' + !!btn);
+    btn.click();
+    await sleep(2500);
+    log('строк в таблице после демо: ' + d.querySelectorAll('#ops-body tr').length);
+    try { var rr = await w.fetch('/api/demo'); log('fetch /api/demo из iframe: HTTP ' + rr.status); } catch(e){ log('fetch err: ' + e.message); }
+    var st = d.getElementById('status-line'); if (st) log('status-line: "' + st.textContent + '"');
+    var vpp = d.getElementById('f-впп').value;
+    log('ВПП итого = ' + vpp + (vpp.replace(/\s/g,'') === '83765' ? '  [OK: 83765]' : '  [FAIL: ожидалось 83765]'));
+    // заполняем спрос и доступное время — такт должен появиться автоматически (960 мин / 480 шт = 2 мин)
+    function setVal(id, val){ var el = d.getElementById(id); el.value = val; el.dispatchEvent(new w.Event('input', {bubbles:true})); }
+    setVal('f-спрос', '480');
+    setVal('f-время', '960');
+    await sleep(1200);
+    var takt = d.getElementById('f-такт').value;
+    var taktNote = d.getElementById('f-такт-note');
+    var taktOk = takt && Math.abs(parseFloat(takt.replace(',','.')) - 2) < 0.001;
+    log('Такт = ' + takt + ' | note: "' + (taktNote ? taktNote.textContent : 'n/a') + '"' + (taktOk ? '  [OK: 960/480=2]' : '  [FAIL: ожидалось 2]'));
+    // 2. зелёная подсветка при вводе
+    var okCount = d.querySelectorAll('#ops-body input.ok-line, #f-спрос.ok-line, #f-время.ok-line').length;
+    log('ok-line (зелёные) полей после ввода: ' + okCount + (okCount > 0 ? '  [OK]' : '  [FAIL]'));
+    // 3. красная подсветка при вводе нечисла в числовую ячейку Тц
+    var cell = d.querySelector('#ops-body input.num');
+    cell.value = 'двадцать';
+    cell.dispatchEvent(new w.Event('input', {bubbles:true}));
+    await sleep(900);
+    var badCount = d.querySelectorAll('#ops-body input.bad').length;
+    log('bad (красные) ячеек после "двадцать": ' + badCount + (badCount > 0 ? '  [OK]' : '  [FAIL]'));
+    // 4. термины в отчёте
+    var terms = d.querySelectorAll('#report .term');
+    var dotted = 0;
+    terms.forEach(function(t){ if (w.getComputedStyle(t).borderBottomStyle === 'dotted') dotted++; });
+    log('терминов .term в отчёте: ' + terms.length + ', из них dotted: ' + dotted + ((terms.length && dotted === terms.length) ? '  [OK]' : '  [FAIL]'));
+    // скролл к отчёту для визуального скрина
+    var rep = d.getElementById('report');
+    if (rep) rep.scrollIntoView();
+    log('ГОТОВО');
+  } catch (e) { log('ОШИБКА: ' + e.message); }
+};
+</script>
+</body></html>

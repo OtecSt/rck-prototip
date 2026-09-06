@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head><body>
+<pre id="out">pending</pre>
+<iframe id="fr" style="width:1400px;height:900px"></iframe>
+<script>
+try { localStorage.setItem("agentцех_режим", "full"); } catch(e){}
+document.getElementById("fr").src = "/#tool=uzkie_mesta";
+function vis(el){ if(!el) return false;
+  var cs = el.ownerDocument.defaultView.getComputedStyle(el);
+  return cs.display !== "none" && !el.hidden && el.getClientRects().length > 0; }
+var fr = document.getElementById("fr"), out = document.getElementById("out");
+fr.addEventListener("load", function(){
+  var win = fr.contentWindow, doc = fr.contentDocument;
+  setTimeout(function(){
+    var rz = doc.getElementById("result-zone");
+    rz.hidden = false; // имитируем посчитанный отчёт
+    doc.getElementById("report").innerHTML = "<h2>Отчёт</h2><p>тест</p>";
+    var r1 = { umTool_reportVisible: vis(rz) };
+    win.location.hash = "#tool=vsm";
+    setTimeout(function(){
+      r1.vsmTool_reportVisible = vis(rz);
+      r1.vsmTool_reportDisplay = doc.defaultView.getComputedStyle(rz).display;
+      // тост и кнопка
+      var toast = doc.getElementById("ac-toast"), jump = doc.getElementById("ac-jump");
+      r1.toastPointerEvents = doc.defaultView.getComputedStyle(toast).pointerEvents;
+      r1.jumpShownInitially = jump.classList.contains("show");
+      win.location.hash = "#tool=uzkie_mesta";
+      setTimeout(function(){
+        r1.backToUm_reportVisible = vis(rz);
+        out.textContent = "QA2:" + JSON.stringify(r1, null, 1);
+      }, 400);
+    }, 400);
+  }, 700);
+});
+</script></body></html>

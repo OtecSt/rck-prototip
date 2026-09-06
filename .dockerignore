@@ -1,0 +1,11 @@
+__pycache__
+*.pyc
+ui/ui_server.log
+ui/файлы
+Ф2_обвязка
+результаты
+проверка_вход
+*.md
+deploy/nginx/certbot
+deploy/backups
+.git

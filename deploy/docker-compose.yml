@@ -1,0 +1,40 @@
+name: agent-ceh
+
+services:
+  app:
+    build:
+      context: ..                 # каталог Прототип/ (ядра лежат рядом с ui/)
+      dockerfile: deploy/Dockerfile
+    restart: unless-stopped
+    expose:
+      - "8000"                    # только внутри сети compose; наружу — nginx
+    volumes:
+      # Данные (БД + docx прогонов) переживают пересоздание контейнера.
+      # entrypoint.sh создаёт симлинки /app/ui/agent_ceh.db и /app/ui/файлы → /app/data
+      - data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request,sys; r=urllib.request.urlopen('http://127.0.0.1:8000/'); sys.exit(0 if r.status==200 else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      # - "443:443"   # ← раскомментировать при включении TLS (см. nginx/nginx.conf)
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/.htpasswd:/etc/nginx/.htpasswd:ro
+      # Для TLS (certbot): раскомментировать две строки ниже
+      # - ./nginx/certbot/conf:/etc/letsencrypt:ro
+      # - ./nginx/certbot/www:/var/www/certbot:ro
+
+volumes:
+  data:

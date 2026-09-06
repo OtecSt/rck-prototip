@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>qa-dom</title></head>
+<body>
+<pre id="out">pending</pre>
+<iframe id="fr" style="width:1400px;height:900px"></iframe>
+<script>
+try { localStorage.setItem("agentцех_режим", "full"); } catch(e){}
+document.getElementById("fr").src = "/#tool=vsm";
+function vis(el){
+  if(!el) return false;
+  var cs = el.ownerDocument.defaultView.getComputedStyle(el);
+  return cs.display !== "none" && !el.hidden && el.getClientRects().length > 0;
+}
+function snapshot(doc, win){
+  var tools = Array.prototype.slice.call(doc.querySelectorAll("#full-mode .tool[data-tool]"));
+  var visTools = tools.filter(vis).map(function(t){return t.getAttribute("data-tool");});
+  var rz = doc.getElementById("result-zone");
+  var stages = Array.prototype.slice.call(doc.querySelectorAll(".stages > li.stage"));
+  var visStages = stages.map(function(li, i){ return vis(li) ? i : null; }).filter(function(x){return x!==null;});
+  var wz = doc.getElementById("wz-head");
+  return {
+    hash: win.location.hash,
+    visibleTools: visTools,
+    visibleStages: visStages,
+    resultZoneVisible: vis(rz),
+    wzHidden: wz ? wz.hidden : null,
+    wzCrumb: doc.getElementById("wz-crumb") ? doc.getElementById("wz-crumb").textContent : "",
+    wzTitle: doc.getElementById("wz-title") ? doc.getElementById("wz-title").textContent : "",
+    overviewVisible: !!doc.querySelector(".stage-overview:not([hidden])") && vis(doc.querySelector(".stage-overview:not([hidden])"))
+  };
+}
+var out = document.getElementById("out");
+var fr = document.getElementById("fr");
+var res = {};
+fr.addEventListener("load", function(){
+  var win = fr.contentWindow, doc = fr.contentDocument;
+  setTimeout(function(){
+    res.step1_vsm = snapshot(doc, win);
+    win.location.hash = "#tool=soglashenie";
+    setTimeout(function(){
+      res.step2_soglashenie = snapshot(doc, win);
+      // режим обзора этапа: повторный клик по открытой группе
+      var head = doc.querySelector('.sn-group-head[data-stage="1"]');
+      if (head) head.click();
+      setTimeout(function(){
+        res.step3_overview_stage1 = snapshot(doc, win);
+        win.location.hash = "#tool=uzkie_mesta";
+        setTimeout(function(){
+          res.step4_um = snapshot(doc, win);
+          out.textContent = "QA-RESULT:" + JSON.stringify(res, null, 1);
+        }, 400);
+      }, 400);
+    }, 400);
+  }, 700);
+});
+</script>
+</body></html>

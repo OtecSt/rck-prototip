@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head><meta charset="utf-8"><title>QA help glossary</title>
+<style>body{margin:0;background:#fff}iframe{width:100%;height:2300px;border:0}</style></head>
+<body>
+<iframe id="fr" src="/"></iframe>
+<script>
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+var fr = document.getElementById('fr');
+fr.onload = async function(){
+  var d = fr.contentDocument;
+  await sleep(1500);
+  var btn = d.querySelector('.sn-help') || d.querySelector('[data-stage="help"]');
+  if (btn) btn.click();
+  await sleep(600);
+  var link = d.querySelector('a[data-go="chB"]');
+  if (link) link.click();
+  await sleep(800);
+  var gl = d.querySelector('dl.glossary');
+  if (gl) gl.scrollIntoView();
+  document.title = 'glossary:' + (gl ? gl.querySelectorAll('dt').length : 'NONE');
+};
+</script>
+</body></html>
